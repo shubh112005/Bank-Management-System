@@ -1,0 +1,3 @@
+CREATE DATABASE bank_management;
+
+SHOW DATABASES;
