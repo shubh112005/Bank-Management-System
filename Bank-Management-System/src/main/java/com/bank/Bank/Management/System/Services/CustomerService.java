@@ -1,6 +1,7 @@
 package com.bank.Bank.Management.System.Services;
 
 import com.bank.Bank.Management.System.Entity.Customer;
+import com.bank.Bank.Management.System.Exception.CustomerNotFoundException;
 import com.bank.Bank.Management.System.Repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CustomerService {
+public class    CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -18,7 +19,7 @@ public class CustomerService {
 
     public Customer getCustomerById(Long id){
             return customerRepository.findById(id).
-                    orElseThrow(() -> new RuntimeException("Customer not found"));
+                    orElseThrow(() -> new CustomerNotFoundException("Customer with ID" + id +"not found."));
     }
 
     public List<Customer> getAllCustomers(){

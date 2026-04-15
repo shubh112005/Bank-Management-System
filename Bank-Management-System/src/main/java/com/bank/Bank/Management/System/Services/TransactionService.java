@@ -2,6 +2,8 @@ package com.bank.Bank.Management.System.Services;
 
 import com.bank.Bank.Management.System.Entity.Account;
 import com.bank.Bank.Management.System.Entity.Transaction;
+import com.bank.Bank.Management.System.Exception.AccountNotFoundException;
+import com.bank.Bank.Management.System.Exception.InsufficientBalanceException;
 import com.bank.Bank.Management.System.Repository.AccountRepository;
 import com.bank.Bank.Management.System.Repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,7 @@ public class TransactionService {
     // Deposit
     public Transaction deposit(Long accountId, Double amount){
         Account account = accountRepository.findById(accountId).
-                orElseThrow(() -> new RuntimeException("Account not found"));
+                orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
         account.setBalance(account.getBalance() + amount);
         accountRepository.save(account);
@@ -38,9 +40,9 @@ public class TransactionService {
     public Transaction withdraw(Long accountId, Double amount ){
 
         Account account = accountRepository.findById(accountId).
-                orElseThrow(() -> new RuntimeException("Account not found"));
+                orElseThrow(() -> new AccountNotFoundException("Account not found"));
         if (account.getBalance() < amount){
-            throw new RuntimeException("Insufficient balance");
+            throw new InsufficientBalanceException("Insufficient balance");
         }
         account.setBalance(account.getBalance() - amount);
         accountRepository.save(account);
@@ -57,13 +59,13 @@ public class TransactionService {
     public Transaction transfer(Long fromAccountId, Long toAccountId, Double amount){
 
         Account fromAccount = accountRepository.findById(fromAccountId).
-                orElseThrow(() -> new RuntimeException("Sender not found"));
+                orElseThrow(() -> new AccountNotFoundException("Sender not found"));
 
         Account toAccount = accountRepository.findById(toAccountId).
-                orElseThrow(() -> new RuntimeException("Receiver not found"));
+                orElseThrow(() -> new AccountNotFoundException("Receiver not found"));
 
         if(fromAccount.getBalance() < amount){
-            throw new RuntimeException("Insufficient amount in Sender account");
+            throw new InsufficientBalanceException("Insufficient amount in Sender account");
         }
 
         fromAccount.setBalance(fromAccount.getBalance() - amount);

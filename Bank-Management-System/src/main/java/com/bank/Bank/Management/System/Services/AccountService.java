@@ -2,6 +2,7 @@ package com.bank.Bank.Management.System.Services;
 
 import com.bank.Bank.Management.System.Entity.Account;
 import com.bank.Bank.Management.System.Entity.Customer;
+import com.bank.Bank.Management.System.Exception.AccountNotFoundException;
 import com.bank.Bank.Management.System.Repository.AccountRepository;
 import com.bank.Bank.Management.System.Repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class AccountService {
 
     public Account  getAccountById(Long id){
         return accountRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Account not found "));
+                orElseThrow(() -> new AccountNotFoundException("Account not found "));
 
     }
 

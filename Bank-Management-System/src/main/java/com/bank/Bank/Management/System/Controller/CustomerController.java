@@ -4,6 +4,7 @@ package com.bank.Bank.Management.System.Controller;
 import com.bank.Bank.Management.System.Entity.Customer;
 import com.bank.Bank.Management.System.Services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class CustomerController {
         return customerService.addCustomer(customer);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/{id}")
     public Customer getCustomer(@PathVariable Long id) {
         return customerService.getCustomerById(id);
@@ -35,6 +37,7 @@ public class CustomerController {
         customerService.deleteCustomer(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<Customer> getAllCustomers() {
         return customerService.getAllCustomers();

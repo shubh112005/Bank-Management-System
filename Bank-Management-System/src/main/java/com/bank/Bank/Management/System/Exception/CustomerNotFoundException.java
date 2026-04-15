@@ -1,4 +1,8 @@
 package com.bank.Bank.Management.System.Exception;
 
-public class CustomerNotFoundException {
+public class CustomerNotFoundException extends RuntimeException{
+
+    public CustomerNotFoundException(String message){
+        super(message);
+    }
 }
