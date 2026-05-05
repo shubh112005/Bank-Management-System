@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -30,27 +31,42 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain)
             throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String username = null;
-        String token = null;
 
+        String authHeader = request.getHeader("Authorization");
+        String token = null;
+        String username = null;
+
+        // Extract token from header
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtUtil.extractUsername(token);
+            try {
+                username = jwtUtil.extractUsername(token);
+            } catch (Exception e) {
+                // Invalid token → let GlobalExceptionHandler catch it
+                chain.doFilter(request, response);
+                return;
+            }
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        // Validate token and set authentication
+        if (username != null && jwtUtil.validateToken(token, username)
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
+
             User user = userRepository.findByUsername(username).orElse(null);
 
-
-            if (username != null && jwtUtil.validateToken(token, username)) {
+            if (user != null) {
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(user, null, List.of(() -> "ROLE_" + user.getRole()));
+                        new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+                        );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-        chain.doFilter(request,response);
+
+        // Continue filter chain
+        chain.doFilter(request, response);
     }
 }

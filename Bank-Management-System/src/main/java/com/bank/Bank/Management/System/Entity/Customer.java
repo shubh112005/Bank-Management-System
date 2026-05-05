@@ -7,6 +7,7 @@ import lombok.Data;
 import java.util.List;
 @Data
 @Entity
+@Table(name = "customer")
 public class Customer {
 
 
@@ -18,8 +19,15 @@ public class Customer {
     private String phone;
     private String address;
 
+    @OneToOne
+    @JoinColumn(name ="user_id")
+    private User user;
+
     @OneToMany(mappedBy="customer", cascade= CascadeType.ALL)
     private List<Account> account;
+
+    @OneToMany(mappedBy = "customer")
+    private List<Loan> loans;
 
 
 }

@@ -1,52 +1,42 @@
 package com.bank.Bank.Management.System.Exception;
 
-import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import tools.jackson.databind.ObjectReader;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.nio.file.AccessDeniedException;
+import java.util.HashMap;
+import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<Map<String,Object>> handleCustomerNotFound(CustomerNotFoundException ex){
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("error","customer not found");
+
+    // Handle resource not found
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Runtime Error");
         error.put("message", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(AccountNotFoundException.class)
-    public ResponseEntity<Map<String,Object>> handleAccountNotFound(AccountNotFoundException ex){
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("error","Account not found");
-        error.put("message",ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    // Handle access denied
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Forbidden");
+        error.put("message", "You are not authorized to access this resource");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
-    @ExceptionHandler(InsufficientBalanceException.class)
-    public ResponseEntity<Map<String, Object>> handleInsufficientBalance(InsufficientBalanceException ex){
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("error","Insufficient Balance");
-        error.put("message", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-
+    // Handle generic exceptions
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex){
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("error","Internal Server Error");
+    public ResponseEntity<Map<String, String>> handleException(Exception ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Internal Server Error");
         error.put("message", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }
 

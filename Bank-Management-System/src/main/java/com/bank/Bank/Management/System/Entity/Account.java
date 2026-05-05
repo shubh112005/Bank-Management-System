@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 @Entity
+@Table(name = "account")
 public class Account {
 
     @Id
@@ -14,7 +15,7 @@ public class Account {
     private Long id;
 
     private String accountNumber;
-    private String accountType;
+    private String Type;
     private Double balance;
 
     @ManyToOne

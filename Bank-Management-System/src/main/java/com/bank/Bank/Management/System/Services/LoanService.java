@@ -1,15 +1,13 @@
 package com.bank.Bank.Management.System.Services;
 
-import com.bank.Bank.Management.System.Entity.Customer;
 import com.bank.Bank.Management.System.Entity.Loan;
-import com.bank.Bank.Management.System.Exception.CustomerNotFoundException;
-import com.bank.Bank.Management.System.Exception.LoanNotFoundException;
-import com.bank.Bank.Management.System.Repository.CustomerRepository;
+import com.bank.Bank.Management.System.Entity.Customer;
 import com.bank.Bank.Management.System.Repository.LoanRepository;
-import org.jspecify.annotations.NonNull;
+import com.bank.Bank.Management.System.Repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -21,23 +19,51 @@ public class LoanService {
     @Autowired
     private CustomerRepository customerRepository;
 
-    public Loan applyLoan(Long customerId, Loan loan){
-        Customer customer = customerRepository.findById(customerId).
-                orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+    // Apply for loan
+    public Loan applyLoan(Long customerId, Double amount) {
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        Loan loan = new Loan();
+        loan.setAmount(amount);
         loan.setCustomer(customer);
-        loan.setApproved(false);
+        loan.setStatus("PENDING");
+        loan.setAppliedDate(LocalDateTime.now());
+
         return loanRepository.save(loan);
     }
 
-    public Loan approveLoan(long loanId){
-        Loan loan = loanRepository.findById(loanId).
-                orElseThrow(() -> new LoanNotFoundException("Loan not found"));
+    // Approve loan
+    public Loan approveLoan(Long id) {
 
-        loan.setApproved(true);
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
+
+        loan.setStatus("APPROVED");
+        loan.setApprovedDate(LocalDateTime.now());
+
         return loanRepository.save(loan);
     }
 
-    public List<Loan> getLoanByCustomer(Long customerId){
+    // Reject loan
+    public Loan rejectLoan(Long id) {
+
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
+
+        loan.setStatus("REJECTED");
+
+        return loanRepository.save(loan);
+    }
+
+    // Get loans by customer
+    public List<Loan> getLoansByCustomer(Long customerId) {
         return loanRepository.findByCustomerId(customerId);
+    }
+
+    // Get all loans
+    public List<Loan> getAllLoans() {
+        return loanRepository.findAll();
     }
 }

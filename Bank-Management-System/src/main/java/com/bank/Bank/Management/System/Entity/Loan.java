@@ -5,7 +5,11 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
+@Data
 @Entity
+@Table(name = "loan")
 public class Loan  {
 
     @Id
@@ -16,14 +20,13 @@ public class Loan  {
     private Double amount;
     private Double interestRate;
     private Integer tenureMonths;
-    @Setter
-    @Getter
-    private Boolean approved;
+    private String status;
+    private LocalDateTime appliedDate;
+    private LocalDateTime approvedDate;
 
-    @Setter
-    @Getter
+
     @ManyToOne
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customer_ id")
     private Customer customer;
 
 }
